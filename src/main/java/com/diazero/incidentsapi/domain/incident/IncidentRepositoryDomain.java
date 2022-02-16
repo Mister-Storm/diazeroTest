@@ -13,5 +13,6 @@ public interface IncidentRepositoryDomain {
 
     Optional<Incident> findIncident(String idIncident);
 
+    void deleteIncident(String id);
 
 }

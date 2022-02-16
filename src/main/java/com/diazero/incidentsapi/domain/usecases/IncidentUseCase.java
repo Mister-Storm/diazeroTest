@@ -13,23 +13,30 @@ public class IncidentUseCase {
         this.repository = repository;
     }
 
-    List<IncidentResponse> findAllIncidents() {
+    public List<IncidentResponse> findAllIncidents() {
         return repository.findIncidents().stream().map(IncidentResponse::anIncidentResponse).toList();
     }
 
-    
+    public IncidentResponse findIncidentById(String id) {
+        return IncidentResponse.anIncidentResponse(repository.findIncident(id)
+                .orElseThrow(() -> new IncidentNotFoundException(
+                        String.format("Incident %s not found.", id))));
+    }
 
-    IncidentResponse createIncident(IncidentRequestCreate request) {
+    public IncidentResponse createIncident(IncidentRequestCreate request) {
         return IncidentResponse.anIncidentResponse(repository.save(request.toIncident()));
     }
 
-    IncidentResponse updateIncident(IncidentRequestUpdate request) {
-        Incident incident = repository.findIncident(request.idIncident()).orElseThrow();
+    public IncidentResponse updateIncident(IncidentRequestUpdate request) {
+        Incident incident = repository.findIncident(request.idIncident())
+                .orElseThrow(() -> new IncidentNotFoundException(
+                        String.format("Incident %s not found.", request.idIncident().toString())));
         incident.updateFields(request);
         return IncidentResponse.anIncidentResponse(repository.save(incident));
     }
 
-
-
+    public void deleteIncident(String id) {
+        this.repository.deleteIncident(id);
+    }
 
 }

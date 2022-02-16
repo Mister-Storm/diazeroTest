@@ -54,6 +54,13 @@ class IncidentUseCaseTest {
         assertNotNull(incident.updatedAt());
     }
 
+    @Test
+    public void shouldThrowExceptionWhenUpdateFieldsAndNotFindIncident() {
+        when(repository.findIncident(any())).thenReturn(Optional.empty());
+
+        assertThrows(IncidentNotFoundException.class, () -> this.useCase.updateIncident(this.createRequestUpdate()));
+    }
+
     private Incident createMockIncidentUpdated() {
         Incident incident = this.createMockIncident();
         incident.updateFields(this.createRequestUpdate());
