@@ -17,16 +17,16 @@ public class IncidentUseCase {
         return repository.findIncidents().stream().map(IncidentResponse::anIncidentResponse).toList();
     }
 
+    
+
     IncidentResponse createIncident(IncidentRequestCreate request) {
         return IncidentResponse.anIncidentResponse(repository.save(request.toIncident()));
     }
 
     IncidentResponse updateIncident(IncidentRequestUpdate request) {
-
-        Incident incident = repository.
-
-
-        //return IncidentResponse.anIncidentResponse(repository.save(request.toIncident()));
+        Incident incident = repository.findIncident(request.idIncident()).orElseThrow();
+        incident.updateFields(request);
+        return IncidentResponse.anIncidentResponse(repository.save(incident));
     }
 
 

@@ -1,6 +1,7 @@
 package com.diazero.incidentsapi.domain.incident;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface IncidentRepositoryDomain {
 
@@ -9,6 +10,8 @@ public interface IncidentRepositoryDomain {
     List<Incident> findIncidents();
 
     Incident updateFields(Incident incident);
+
+    Optional<Incident> findIncident(String idIncident);
 
 
 }

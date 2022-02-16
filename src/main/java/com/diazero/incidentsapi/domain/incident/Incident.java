@@ -82,6 +82,12 @@ public class Incident {
 
     }
 
+    public void updateFields(IncidentRequestUpdate update) {
+        this.name = update.name() == null ? this.name : update.name();
+        this.description = update.description() == null ? this.description : update.description();
+        this.updatedAt = LocalDateTime.now();
+    }
+
     @Override
     public String toString() {
         return "Incident{" +

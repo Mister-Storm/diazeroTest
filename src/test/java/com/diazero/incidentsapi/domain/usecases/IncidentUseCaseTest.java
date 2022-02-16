@@ -7,7 +7,9 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import java.util.Optional;
+
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
@@ -16,6 +18,9 @@ class IncidentUseCaseTest {
     public static final String INCIDENT_NAME = "incident1";
     public static final String INCIDENT_DESCRIPTION = "email service failure";
     public static final String ID_INCIDENT = "4";
+    private static final String INCIDENT_NAME_UPDATE = "incidentA";
+    private static final String INCIDENT_DESCRIPTION_UPDATE = "email service failure again";
+
     @Mock
     private IncidentRepositoryDomain repository;
 
@@ -34,7 +39,29 @@ class IncidentUseCaseTest {
         assertEquals(this.createIncidentResponse().idIncident(), incident.idIncident());
         assertEquals(this.createIncidentResponse().name(), incident.name());
         assertEquals(this.createIncidentResponse().description(), incident.description());
-        assertEquals(this.createIncidentResponse().active(), incident.active());
+        assertTrue(this.createIncidentResponse().active());
+    }
+
+    @Test
+    public void shouldUpdateFields() {
+        when(repository.findIncident(any())).thenReturn(Optional.of(this.createMockIncident()));
+        when(repository.save(any())).thenReturn(this.createMockIncidentUpdated());
+        IncidentResponse incident = this.useCase.updateIncident(this.createRequestUpdate());
+        assertEquals(ID_INCIDENT, incident.idIncident());
+        assertEquals(INCIDENT_NAME_UPDATE, incident.name());
+        assertEquals(INCIDENT_DESCRIPTION_UPDATE, incident.description());
+        assertTrue(incident.active());
+        assertNotNull(incident.updatedAt());
+    }
+
+    private Incident createMockIncidentUpdated() {
+        Incident incident = this.createMockIncident();
+        incident.updateFields(this.createRequestUpdate());
+        return incident;
+    }
+
+    private IncidentRequestUpdate createRequestUpdate() {
+        return new IncidentRequestUpdate(ID_INCIDENT, INCIDENT_NAME_UPDATE, INCIDENT_DESCRIPTION_UPDATE);
     }
 
     private Incident createMockIncident() {
