@@ -82,4 +82,16 @@ public class Incident {
 
     }
 
+    @Override
+    public String toString() {
+        return "Incident{" +
+                "idIncident='" + idIncident + '\'' +
+                ", name='" + name + '\'' +
+                ", description='" + description + '\'' +
+                ", createAt=" + createAt +
+                ", updatedAt=" + updatedAt +
+                ", closedAt=" + closedAt +
+                ", active=" + active +
+                '}';
+    }
 }

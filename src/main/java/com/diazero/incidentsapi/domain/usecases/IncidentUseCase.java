@@ -1,9 +1,8 @@
 package com.diazero.incidentsapi.domain.usecases;
 
-import com.diazero.incidentsapi.domain.incident.Incident;
-import com.diazero.incidentsapi.domain.incident.IncidentRepositoryDomain;
-import com.diazero.incidentsapi.domain.incident.IncidentRequestCreate;
-import com.diazero.incidentsapi.domain.incident.IncidentResponse;
+import com.diazero.incidentsapi.domain.incident.*;
+
+import java.util.List;
 
 public class IncidentUseCase {
 
@@ -14,9 +13,23 @@ public class IncidentUseCase {
         this.repository = repository;
     }
 
-    IncidentResponse createIncident(IncidentRequestCreate request) {
-        Incident incident =
-
+    List<IncidentResponse> findAllIncidents() {
+        return repository.findIncidents().stream().map(IncidentResponse::anIncidentResponse).toList();
     }
+
+    IncidentResponse createIncident(IncidentRequestCreate request) {
+        return IncidentResponse.anIncidentResponse(repository.save(request.toIncident()));
+    }
+
+    IncidentResponse updateIncident(IncidentRequestUpdate request) {
+
+        Incident incident = repository.
+
+
+        //return IncidentResponse.anIncidentResponse(repository.save(request.toIncident()));
+    }
+
+
+
 
 }

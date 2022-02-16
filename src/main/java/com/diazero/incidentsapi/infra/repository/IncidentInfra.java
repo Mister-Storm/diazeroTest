@@ -32,4 +32,14 @@ public class IncidentInfra {
                 .build();
     }
 
+    public static IncidentInfra createIncidentInfra(Incident incident) {
+        IncidentInfra incidentInfra = new IncidentInfra();
+        incidentInfra.idIncident= incident.getIdIncident() == null ? null : Long.parseLong(incident.getIdIncident());
+        incidentInfra.name = incident.getName();
+        incidentInfra.description = incident.getDescription();
+        incidentInfra.createAt = incident.getCreateAt();
+        incidentInfra.updatedAt = incident.getUpdatedAt();
+        incidentInfra.closedAt = incident.getClosedAt();
+        return incidentInfra;
+    }
 }
