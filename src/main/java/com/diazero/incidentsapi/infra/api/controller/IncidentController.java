@@ -49,4 +49,14 @@ public class IncidentController {
         return ResponseEntity.noContent().build();
     }
 
+    @PatchMapping("/{idIncident}/close")
+    public ResponseEntity<IncidentResponse> closeIncident(@PathVariable("idIncident") String idIncident) {
+        return new ResponseEntity<>(incidentService.closeIncident(idIncident), HttpStatus.OK);
+    }
+
+    @PatchMapping("/{idIncident}/reopen")
+    public ResponseEntity<IncidentResponse> reopenIncident(@PathVariable("idIncident") String idIncident) {
+        return new ResponseEntity<>(incidentService.reopenIncident(idIncident), HttpStatus.OK);
+    }
+
 }

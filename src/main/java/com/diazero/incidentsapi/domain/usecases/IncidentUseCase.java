@@ -44,6 +44,14 @@ public class IncidentUseCase {
         return IncidentResponse.anIncidentResponse(repository.save(incident));
     }
 
+    public IncidentResponse reopenIncident(String idIncident) {
+        Incident incident = repository.findIncident(idIncident)
+                .orElseThrow(() -> new IncidentNotFoundException(
+                        String.format("Incident %s not found.", idIncident)));
+        incident.reOpen();
+        return IncidentResponse.anIncidentResponse(repository.save(incident));
+    }
+
     public void deleteIncident(String id) {
         this.repository.deleteIncident(repository.findIncident(id)
                 .orElseThrow(() -> new IncidentNotFoundException(
