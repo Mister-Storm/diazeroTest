@@ -1,6 +1,8 @@
 package com.diazero.incidentsapi.domain.incident;
 
-public record IncidentRequestCreate(String name, String description) {
+import javax.validation.constraints.NotEmpty;
+
+public record IncidentRequestCreate(@NotEmpty String name, @NotEmpty String description) {
 
     public Incident toIncident(){
         return IncidentBuilder.anIncidentOpenedNow()

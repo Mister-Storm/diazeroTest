@@ -1,4 +1,6 @@
 package com.diazero.incidentsapi.domain.incident;
 
-public record IncidentRequestUpdate(String idIncident, String name, String description) {
+import javax.validation.constraints.NotEmpty;
+
+public record IncidentRequestUpdate(@NotEmpty String idIncident, @NotEmpty String name, @NotEmpty String description) {
 }

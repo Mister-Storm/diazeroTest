@@ -3,14 +3,13 @@ package com.diazero.incidentsapi.domain.usecases;
 import com.diazero.incidentsapi.domain.incident.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.mockito.*;
 
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.when;
 
 class IncidentUseCaseTest {
@@ -26,6 +25,9 @@ class IncidentUseCaseTest {
 
     @InjectMocks
     IncidentUseCase useCase;
+
+    @Captor
+    ArgumentCaptor<Incident> argumentCaptor;
 
     @BeforeEach
     public void setup() {
@@ -46,19 +48,49 @@ class IncidentUseCaseTest {
     public void shouldUpdateFields() {
         when(repository.findIncident(any())).thenReturn(Optional.of(this.createMockIncident()));
         when(repository.save(any())).thenReturn(this.createMockIncidentUpdated());
-        IncidentResponse incident = this.useCase.updateIncident(this.createRequestUpdate());
-        assertEquals(ID_INCIDENT, incident.idIncident());
-        assertEquals(INCIDENT_NAME_UPDATE, incident.name());
-        assertEquals(INCIDENT_DESCRIPTION_UPDATE, incident.description());
-        assertTrue(incident.active());
-        assertNotNull(incident.updatedAt());
+
+        this.useCase.updateIncident(this.createRequestUpdate());
+
+        Mockito.verify(repository).save(argumentCaptor.capture());
+        Incident incident = argumentCaptor.getValue();
+        assertEquals(ID_INCIDENT, incident.getIdIncident());
+        assertEquals(INCIDENT_NAME_UPDATE, incident.getName());
+        assertEquals(INCIDENT_DESCRIPTION_UPDATE, incident.getDescription());
+        assertTrue(incident.isOpen());
+        assertNotNull(incident.getUpdatedAt());
     }
 
     @Test
     public void shouldThrowExceptionWhenUpdateFieldsAndNotFindIncident() {
         when(repository.findIncident(any())).thenReturn(Optional.empty());
 
-        assertThrows(IncidentNotFoundException.class, () -> this.useCase.updateIncident(this.createRequestUpdate()));
+        assertThrows(IncidentNotFoundException.class,
+                () -> this.useCase.updateIncident(this.createRequestUpdate()));
+        Mockito.verify(repository, times(0)).save(any());
+    }
+
+    @Test
+
+    public void shouldCloseAnIncident() {
+        when(repository.findIncident(any())).thenReturn(Optional.of(this.createMockIncident()));
+        when(repository.save(any())).thenReturn(this.createMockIncidentUpdated());
+
+        this.useCase.closeIncident(ID_INCIDENT);
+
+        Mockito.verify(repository).save(argumentCaptor.capture());
+        Incident incident = argumentCaptor.getValue();
+        assertFalse(incident.isOpen());
+        assertNotNull(incident.getClosedAt());
+    }
+
+    @Test
+    public void shouldThrowExceptionWhenCloseAndNotFindIncident() {
+        when(repository.findIncident(any())).thenReturn(Optional.empty());
+
+        assertThrows(IncidentNotFoundException.class,
+                () -> this.useCase.closeIncident(ID_INCIDENT));
+        Mockito.verify(repository, times(0)).save(any());
+
     }
 
     private Incident createMockIncidentUpdated() {

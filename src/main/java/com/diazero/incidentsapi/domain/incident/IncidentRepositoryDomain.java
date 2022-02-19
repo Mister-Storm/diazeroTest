@@ -9,10 +9,8 @@ public interface IncidentRepositoryDomain {
 
     List<Incident> findIncidents();
 
-    Incident updateFields(Incident incident);
-
     Optional<Incident> findIncident(String idIncident);
 
-    void deleteIncident(String id);
+    void deleteIncident(Incident incident);
 
 }

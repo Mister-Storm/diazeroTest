@@ -2,6 +2,7 @@ package com.diazero.incidentsapi.domain.usecases;
 
 import com.diazero.incidentsapi.domain.incident.*;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 public class IncidentUseCase {
@@ -30,13 +31,23 @@ public class IncidentUseCase {
     public IncidentResponse updateIncident(IncidentRequestUpdate request) {
         Incident incident = repository.findIncident(request.idIncident())
                 .orElseThrow(() -> new IncidentNotFoundException(
-                        String.format("Incident %s not found.", request.idIncident().toString())));
+                        String.format("Incident %s not found.", request.idIncident())));
         incident.updateFields(request);
         return IncidentResponse.anIncidentResponse(repository.save(incident));
     }
 
+    public IncidentResponse closeIncident(String idIncident) {
+        Incident incident = repository.findIncident(idIncident)
+                .orElseThrow(() -> new IncidentNotFoundException(
+                        String.format("Incident %s not found.", idIncident)));
+        incident.close(LocalDateTime.now());
+        return IncidentResponse.anIncidentResponse(repository.save(incident));
+    }
+
     public void deleteIncident(String id) {
-        this.repository.deleteIncident(id);
+        this.repository.deleteIncident(repository.findIncident(id)
+                .orElseThrow(() -> new IncidentNotFoundException(
+                        String.format("Incident %s not found.", id))));
     }
 
 }
