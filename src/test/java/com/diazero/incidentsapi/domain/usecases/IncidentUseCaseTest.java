@@ -70,7 +70,6 @@ class IncidentUseCaseTest {
     }
 
     @Test
-
     public void shouldCloseAnIncident() {
         when(repository.findIncident(any())).thenReturn(Optional.of(this.createMockIncident()));
         when(repository.save(any())).thenReturn(this.createMockIncidentUpdated());
@@ -89,6 +88,29 @@ class IncidentUseCaseTest {
 
         assertThrows(IncidentNotFoundException.class,
                 () -> this.useCase.closeIncident(ID_INCIDENT));
+        Mockito.verify(repository, times(0)).save(any());
+
+    }
+
+    @Test
+    public void shouldReopenAnIncident() {
+        when(repository.findIncident(any())).thenReturn(Optional.of(this.createMockIncident()));
+        when(repository.save(any())).thenReturn(this.createMockIncidentUpdated());
+
+        this.useCase.reopenIncident(ID_INCIDENT);
+
+        Mockito.verify(repository).save(argumentCaptor.capture());
+        Incident incident = argumentCaptor.getValue();
+        assertTrue(incident.isOpen());
+        assertNull(incident.getClosedAt());
+    }
+
+    @Test
+    public void shouldThrowExceptionWhenReopenAndNotFindIncident() {
+        when(repository.findIncident(any())).thenReturn(Optional.empty());
+
+        assertThrows(IncidentNotFoundException.class,
+                () -> this.useCase.reopenIncident(ID_INCIDENT));
         Mockito.verify(repository, times(0)).save(any());
 
     }

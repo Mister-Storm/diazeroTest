@@ -2,24 +2,29 @@ package com.diazero.incidentsapi.infra.api.controller;
 
 import com.diazero.incidentsapi.domain.incident.IncidentResponse;
 import com.diazero.incidentsapi.domain.usecases.IncidentNotFoundException;
+import com.diazero.incidentsapi.infra.api.exceptionhandler.RestResponseEntityExceptionHandler;
 import com.diazero.incidentsapi.infra.service.IncidentService;
 import io.restassured.http.ContentType;
 import io.restassured.module.mockmvc.RestAssuredMockMvc;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.mockito.MockitoAnnotations;
+import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWebTestClient;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 
-@WebMvcTest(IncidentController.class)
+@AutoConfigureWebTestClient
 class IncidentControllerTest {
 
 
@@ -27,32 +32,47 @@ class IncidentControllerTest {
     public static final String VALID_REQUEST_FOR_CREATE = "{\"name\": \"a name\", \"description\":\"978-0-13-468599-1 \"}";
     public static final String INVALID_REQUEST_FOR_UPDATE = "{\"name\": \"\", \"description\":\"978-0-13-468599-1 \"}";
     public static final String VALID_REQUEST_FOR_UPDATE = "{\"idIncident\": \"1\",\"name\": \"a name\", \"description\":\"978-0-13-468599-1 \"}";
-    @MockBean
+
+    @Mock
     private IncidentService incidentService;
 
-    @Autowired
     private MockMvc mockMvc;
+
+    @InjectMocks
+    IncidentController controller;
 
     @BeforeEach
     void setUp() {
+        MockitoAnnotations.openMocks(this);
+
+        this.mockMvc =  MockMvcBuilders.standaloneSetup(controller)
+                .setControllerAdvice(new RestResponseEntityExceptionHandler())
+                .build();
         RestAssuredMockMvc.mockMvc(mockMvc);
     }
+
     @Test
     public void shouldReturnStatusCode200WhenFindAll() {
+
         Mockito.when(incidentService.findAllIncidents())
                 .thenReturn(List.of(this.createIncidentResponse(), this.createIncidentResponse()));
-        RestAssuredMockMvc.get("/incidents")
+        RestAssuredMockMvc
+                .get("/incidents")
                 .then()
                 .status(HttpStatus.OK)
                 .body("$.size()", Matchers.equalTo(2))
                 .body("[0].idIncident", Matchers.equalTo("1"));
     }
 
+
     @Test
     public void shouldReturnStatusCode200WhenFindByIdAndExistsIncident() {
-        Mockito.when(incidentService.findIncidentById(any()))
+        Mockito.when(incidentService.findIncidentById(anyString()))
                 .thenReturn(this.createIncidentResponse());
-        RestAssuredMockMvc.get("/incidents/1")
+        RestAssuredMockMvc
+                .given()
+                .contentType(ContentType.JSON)
+                .get("/incidents/1")
                 .then()
                 .status(HttpStatus.OK)
                 .body("idIncident", Matchers.equalTo("1"))
@@ -148,10 +168,50 @@ class IncidentControllerTest {
                 .status(HttpStatus.NOT_FOUND);
     }
 
+    @Test
+    public void shouldCloseAnExistentIncident() {
+        Mockito.when(incidentService.closeIncident(any())).thenReturn(this.createIncidentResponse());
+        RestAssuredMockMvc.given()
+                .contentType(ContentType.JSON)
+                .patch("/incidents/1/close")
+                .then()
+                .status(HttpStatus.OK);
+    }
+
+    @Test
+    public void shouldntCloseAnInexistentIncident() {
+        Mockito.doThrow(new IncidentNotFoundException("Incident 1 not found."))
+                .when(incidentService).closeIncident(any());
+        RestAssuredMockMvc.given()
+                .contentType(ContentType.JSON)
+                .patch("/incidents/1/close")
+                .then()
+                .status(HttpStatus.NOT_FOUND);
+    }
+
+    @Test
+    public void shouldReopenAnExistentIncident() {
+        Mockito.when(incidentService.reopenIncident(any())).thenReturn(this.createIncidentResponse());
+        RestAssuredMockMvc.given()
+                .contentType(ContentType.JSON)
+                .patch("/incidents/1/reopen")
+                .then()
+                .status(HttpStatus.OK);
+    }
+
+    @Test
+    public void shouldntReopenAnInexistentIncident() {
+        Mockito.doThrow(new IncidentNotFoundException("Incident 1 not found."))
+                .when(incidentService).reopenIncident(any());
+        RestAssuredMockMvc.given()
+                .contentType(ContentType.JSON)
+                .patch("/incidents/1/reopen")
+                .then()
+                .status(HttpStatus.NOT_FOUND);
+    }
 
     private IncidentResponse createIncidentResponse() {
         return new IncidentResponse("1", "An incident", "any description", null, null, null, null);
     }
-
 
 }
