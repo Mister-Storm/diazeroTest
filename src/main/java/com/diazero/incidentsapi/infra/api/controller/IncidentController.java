@@ -23,12 +23,12 @@ public class IncidentController {
         this.incidentService = incidentService;
     }
 
-    @GetMapping
+    @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<IncidentResponse>> findAll() {
         return ResponseEntity.ok(incidentService.findAllIncidents());
     }
 
-    @GetMapping("/{idIncident}")
+    @GetMapping(value = "/{idIncident}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<IncidentResponse> findById(@PathVariable("idIncident") String idIncident) {
         return ResponseEntity.ok(incidentService.findIncidentById(idIncident));
     }
