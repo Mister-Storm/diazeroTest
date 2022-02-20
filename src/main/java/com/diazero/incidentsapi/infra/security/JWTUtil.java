@@ -14,9 +14,9 @@ import java.util.Date;
 @Component
 public class JWTUtil {
 
-    @Value("${jwt.secret}")
+    @Value("${secret}")
     private String secret;
-    @Value("${jwt.expiration}")
+    @Value("${expiration}")
     private long expiration;
 
     public String generateToken(String username) {
