@@ -1,11 +1,14 @@
 package com.diazero.incidentsapi.infra.security.user;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Service
-public class UserInfraService {
+public class UserInfraService implements UserDetailsService {
 
     private final UserInfraRepository repository;
     private final PasswordEncoder encoder;
@@ -26,4 +29,8 @@ public class UserInfraService {
     }
 
 
+    @Override
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        return repository.findByUserName(username).orElseThrow(()-> new UsernameNotFoundException(username));
+    }
 }

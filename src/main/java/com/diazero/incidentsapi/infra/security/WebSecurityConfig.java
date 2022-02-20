@@ -1,5 +1,7 @@
 package com.diazero.incidentsapi.infra.security;
 
+import com.diazero.incidentsapi.infra.security.user.UserInfraService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -20,15 +22,23 @@ import java.util.List;
 @EnableWebSecurity
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
+    @Autowired
+    private UserInfraService userInfraService;
+
+    @Autowired
+    private JWTUtil jwtUtil;
+
     @Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-        super.configure(auth);
+        auth.userDetailsService(userInfraService).passwordEncoder(passwordEncoder());
     }
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http.cors().and().csrf().disable();
         http.headers().frameOptions().disable();
+        http.addFilter(new JWTAuthenticationFilter(jwtUtil, authenticationManager()));
+        http.addFilter(new JWTAutorizationFilter(authenticationManager(), jwtUtil, userInfraService));
         http.httpBasic()
                 .and()
                 .authorizeRequests()
