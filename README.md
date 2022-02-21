@@ -8,5 +8,6 @@
 <p>To run the application, it is possible through the command line or docker-file, being necessary to pass the environment variables secret and expiration, as shown in the following examples</p>
 
 <code>docker build -t diazero/testsfernando .</code></br>
-<code>docker run -it -p 8080:8080 -e "secret=DiaZeroFernandoTeste expiration=60000000" diazero/testsfernando dizero</code>
+<code>docker run -it -p 8080:8080 -e "secret=DiaZeroFernandoTeste expiration=60000000" diazero/testsfernando dizero</code></br>
+<p>Or without use Dockerfile:</p>
 <code>mvn spring-boot:run -Dsecret=DiaZeroFernandoTeste, -Dexpiration=6000000</code>
